@@ -1,0 +1,56 @@
+# Build/Maven/Gradle artefacts
+target/
+.gradle
+.settings
+.classpath
+.project
+/build/
+bin/
+
+# Docker config.
+.env
+
+# Ignore Gradle GUI config.
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored).
+!gradle-wrapper.jar
+
+# Cache of project.
+.gradletasknamecache
+
+# Compiled class file.
+*.class
+
+# Log file.
+*.log
+
+# BlueJ files.
+*.ctxt
+
+# Mobile Tools for Java (J2ME).
+.mtj.tmp/
+
+# Package Files.
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IntelliJ artefacts.
+.idea/
+*.iml
+
+# Editors and IDEs.
+*~
+.gradle
+.vscode
+
+# OSX.
+.DS_Store
+
+# Build.
+build/
