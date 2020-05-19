@@ -30,9 +30,9 @@ public class FeedRequestParameters {
      */
     private final String[] markets;
     /**
-     * Type of feed for the subscription. Currently only default supported.
+     * Type of feed for the subscription.
      */
-    private short feedType = FeedType.Default;
+    private final short feedType;
     /**
      * Depth of the order book. Top of Book = 1.
      */
@@ -47,15 +47,15 @@ public class FeedRequestParameters {
      */
     private int grouping = 1;
 
-    public FeedRequestParameters(final String requestId, final String... markets) {
+    public FeedRequestParameters(final short feedType, final String requestId, final String... markets) {
         super();
+        this.feedType = feedType;
         this.requestId = requestId;
         this.markets = markets;
     }
 
-    public FeedRequestParameters setFeedType(final short feedType) {
-        this.feedType = feedType;
-        return this;
+    public FeedRequestParameters(final String requestId, final String... markets) {
+        this(FeedType.Default, requestId, markets);
     }
 
     public FeedRequestParameters setDepth(final Short depth) {

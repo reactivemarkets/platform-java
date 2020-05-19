@@ -26,6 +26,8 @@ import com.reactivemarkets.papi.FeedRequestReject;
 import com.reactivemarkets.papi.MDLevel2;
 import com.reactivemarkets.papi.MDSnapshotL2;
 import com.reactivemarkets.papi.Message;
+import com.reactivemarkets.papi.PublicTrade;
+import com.reactivemarkets.papi.Side;
 
 public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
 
@@ -37,6 +39,7 @@ public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
     private static final ThreadLocal<MDLevel2> LOCAL_MDLEVEL = ThreadLocal.withInitial(MDLevel2::new);
     private static final ThreadLocal<FeedRequestReject> LOCAL_REQUEST_REJECT = ThreadLocal
             .withInitial(FeedRequestReject::new);
+    private static final ThreadLocal<PublicTrade> LOCAL_PUBLIC_TRADE = ThreadLocal.withInitial(PublicTrade::new);
 
     public FeedMessageHandler(final FeedListener mdListener) {
         this.callbackHandler = mdListener;
@@ -62,6 +65,11 @@ public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
             final FeedRequestReject reqRej = LOCAL_REQUEST_REJECT.get();
             msg.body(reqRej);
             onRejectedRequest(timestamp, reqRej);
+            break;
+        case Body.PublicTrade:
+            final PublicTrade pubTrade = LOCAL_PUBLIC_TRADE.get();
+            msg.body(pubTrade);
+            onPublicTrade(timestamp, pubTrade);
             break;
         default:
             throw new IllegalStateException("Unexpected message type.");
@@ -111,5 +119,21 @@ public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
         reject.setErrorCode(reqRej.errorCode());
         reject.setErrorMessage(reqRej.errorMessage());
         callbackHandler.onFeedRequestReject(reject);
+    }
+
+    private void onPublicTrade(final long timestamp, final PublicTrade publicTrade) {
+        Trade trade = new Trade();
+        trade.setExecutionVenue(publicTrade.execVenue());
+        trade.setFeedId(publicTrade.feedId());
+        trade.setFlags(publicTrade.flags());
+        trade.setMarket(publicTrade.market());
+        trade.setPrice(publicTrade.price());
+        trade.setQty(publicTrade.qty());
+        trade.setSide(Side.name(publicTrade.side()));
+        trade.setSource(publicTrade.source());
+        trade.setSourceTimestamp(publicTrade.sourceTs());
+        trade.setTradeId(publicTrade.tradeId());
+        trade.setTimestamp(timestamp);
+        callbackHandler.onTrade(trade);
     }
 }

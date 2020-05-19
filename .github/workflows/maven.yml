@@ -24,11 +24,10 @@
             with:
               java-version: 8
     
-          - name: Release Maven package
-            uses: samuelmeuli/action-maven-publish@v1
-            with:
-              gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-              gpg_passphrase: ${{ secrets.GPG_PASSWORD }}
-              nexus_username: ${{ secrets.OSSRH_USERNAME }}
-              nexus_password: ${{ secrets.OSSRH_TOKEN }}
-    
+          - name: Publish package
+            run: gradle build publish
+            env:
+              MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+              MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+              GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+              GPG_PASSWORD: ${{ secrets.GPG_PASSWORD }}

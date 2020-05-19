@@ -29,20 +29,21 @@ import javax.websocket.MessageHandler.Whole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.reactivemarkets.papi.FeedType;
 import com.reactivemarkets.platform.util.LoggerUtil;
 import com.reactivemarkets.platform.ws.FeedGatewayException;
 import com.reactivemarkets.platform.ws.FeedRequestMessageFactory;
 import com.reactivemarkets.platform.ws.FeedRequestParameters;
 import com.reactivemarkets.platform.ws.tyrus.TyrusWebSocketClient;
 
-public final class FeedGatewayL2Subscription {
+public final class FeedGatewayTradeSubscription {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeedGatewayL2Subscription.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedGatewayTradeSubscription.class);
     private static final String LIVE_URI = "wss://api.platform.reactivemarkets.com/feed";
     // API key is generated from the platform UI in the keys section
     private static final String API_KEY = "<insert your token here or use the REACTIVE_FEED_GATEWAY_URI environment variable>";
 
-    private FeedGatewayL2Subscription() {
+    private FeedGatewayTradeSubscription() {
     }
 
     public static void main(final String[] args) {
@@ -55,8 +56,8 @@ public final class FeedGatewayL2Subscription {
         final String uri = env.getOrDefault("REACTIVE_FEED_GATEWAY_URI", LIVE_URI);
         final String apiKey = env.getOrDefault("REACTIVE_PLATFORM_API_KEY", API_KEY);
 
-        // create a listener that will log the first 10 messages.
-        final CountDownLatch latch = new CountDownLatch(10);
+        // create a listener that will log the first 5 messages.
+        final CountDownLatch latch = new CountDownLatch(5);
         final FeedListener listener = newCountdownListener(latch);
         final Whole<ByteBuffer> handler = new FeedMessageHandler(listener);
 
@@ -66,16 +67,14 @@ public final class FeedGatewayL2Subscription {
             // blocking connect to the websocket
             client.connect();
             // create a new request with default settings for conflation, depth and grouping
-            final FeedRequestParameters request = new FeedRequestParameters(UUID.randomUUID().toString(), "BTCUSD-CNB");
-            // currently supports fixed sizes at 1, 5, 10, 20
-            request.setDepth((short) 10);
-            // currently supports fixed sizes at 1 (i.e. raw) and 50 for Coinbase
-            request.setGrouping(50);
+            final FeedRequestParameters request = new FeedRequestParameters(FeedType.Trade,
+                    UUID.randomUUID().toString(), "BTCUSD-CNB", "BTCUSD-BFN");
+
             final ByteBuffer buffer = FeedRequestMessageFactory.newSubscription(request);
 
             client.send(buffer);
-            // wait for the data countdown to complete or timeout after 15 seconds
-            if (latch.await(15, TimeUnit.SECONDS)) {
+            // wait for the data countdown to complete or timeout after 30 seconds
+            if (latch.await(30, TimeUnit.SECONDS)) {
                 LOGGER.info("Example completed successfully");
             }
         } catch (FeedGatewayException ex) {
@@ -109,6 +108,11 @@ public final class FeedGatewayL2Subscription {
             @Override
             public void onMarketDepth(final MarketDepth depth) {
                 LOGGER.info("{}", depth);
+            }
+
+            @Override
+            public void onTrade(final Trade trade) {
+                LOGGER.info("{}", trade);
                 latch.countDown();
             }
         };

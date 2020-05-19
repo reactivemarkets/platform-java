@@ -25,8 +25,8 @@ public final class TyrusWebSocketClientFactory {
     private TyrusWebSocketClientFactory() {
     }
 
-    public static TyrusWebSocketClient newWebSocketClient(final String uri, final String authToken,
+    public static TyrusWebSocketClient newWebSocketClient(final String uri, final String apiKey,
             final MessageHandler.Whole<ByteBuffer> handler) {
-        return new TyrusWebSocketClient(uri, authToken, handler);
+        return new TyrusWebSocketClient(uri, apiKey, handler);
     }
 }
