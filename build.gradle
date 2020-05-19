@@ -22,14 +22,18 @@ plugins {
     id 'io.netifi.flatbuffers' version '1.0.5'
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
     id 'com.diffplug.gradle.spotless' version '3.26.1'
 }
 
 ext {
-    github_user = project.findProperty('github.user') ?: System.getenv('GITHUB_USER') ?: ""
-    github_token = project.findProperty('github.token') ?: System.getenv('GITHUB_TOKEN') ?: ""
+    maven_username = System.getenv("MAVEN_USERNAME") ?: ""
+    maven_password = System.getenv("MAVEN_PASSWORD") ?: ""
+    gpg_private_key = System.getenv("GPG_PRIVATE_KEY") ?: ""
+    gpg_password = System.getenv("GPG_PASSWORD") ?: ""
 }
 
+mainClassName = 'com.reactivemarkets.platform.example.feed.FeedGatewayL2Subscription'
 defaultTasks 'build'
 group 'com.reactivemarkets'
 
@@ -41,7 +45,6 @@ applicationDefaultJvmArgs = [
 ]
 */
 
-mainClassName = 'com.reactivemarkets.platform.example.FixBot'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
@@ -86,14 +89,6 @@ task buildFlatBuffers(type: FlatBuffers) {
     inputDir = file('src/main/resources/fbs')
     outputDir = file('src/main/java')
     language = 'java'
-}
-
-task printInfo {
-    doFirst {
-        println "version:      ${version}"
-        println "github.user:  ${github_user}"
-        println "github.token: <${github_token.length()} chars>"
-    }
 }
 
 java {
@@ -141,14 +136,19 @@ publishing {
     }
     repositories {
         maven {
-            name = 'github'
-            url 'https://maven.pkg.github.com/reactivemarkets/platform-java'
+            name = 'ossrh'
+            url 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
             credentials {
-                username = "${github_user}"
-                password = "${github_token}"
+                username = "${maven_username}"
+                password = "${maven_password}"
             }
         }
     }
+}
+
+signing {
+    useInMemoryPgpKeys("${gpg_private_key}", "${gpg_password}")
+    sign(publishing.publications["mavenJava"])
 }
 
 spotless {

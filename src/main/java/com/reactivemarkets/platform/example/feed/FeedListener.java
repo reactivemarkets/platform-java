@@ -18,11 +18,15 @@ package com.reactivemarkets.platform.example.feed;
 
 public interface FeedListener {
 
-    void onMarketDepth(MarketDepth depth);
+    default void onMarketDepth(MarketDepth depth) {
+    }
 
     default void onFeedRequestReject(RequestReject reject) {
     }
 
     default void onFeedRequestAck(RequestAck ack) {
+    }
+
+    default void onTrade(Trade trade) {
     }
 }

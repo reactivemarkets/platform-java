@@ -53,15 +53,15 @@ public class TyrusWebSocketClient extends Endpoint implements AutoCloseable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TyrusWebSocketClient.class);
     private final URI uri;
-    private final String authToken;
+    private final String apiKey;
     private final MessageHandler handler;
     private Session session;
 
-    public TyrusWebSocketClient(final String uri, final String authToken,
+    public TyrusWebSocketClient(final String uri, final String apiKey,
             final MessageHandler.Whole<ByteBuffer> handler) {
         super();
         this.uri = URI.create(uri);
-        this.authToken = authToken;
+        this.apiKey = apiKey;
         this.handler = handler;
     }
 
@@ -71,7 +71,7 @@ public class TyrusWebSocketClient extends Endpoint implements AutoCloseable {
         final Builder configBuilder = ClientEndpointConfig.Builder.create();
         configBuilder.configurator(new Configurator() {
             public void beforeRequest(final Map<String, List<String>> headers) {
-                headers.put("Authorization", Arrays.asList("Bearer " + authToken));
+                headers.put("Authorization", Arrays.asList("Bearer " + apiKey));
             }
         });
         final ClientEndpointConfig config = configBuilder.build();
