@@ -25,7 +25,7 @@
               java-version: 8
     
           - name: Publish package
-            run: gradle build publish
+            run: gradle publish -Pversion="${GITHUB_REF:11}"
             env:
               MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
               MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
