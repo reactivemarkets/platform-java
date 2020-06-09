@@ -28,7 +28,7 @@ The feed gateway provides an API to a binary feed over websockets using the [Goo
 
 A full example of subscribing to and consuming from the level 2 market data feed can be seen in the `com.reactivemarkets.platform.example.feed.FeedGatewayL2Subscription` example. You will need an authorisation token to access the API which is generated against your authenticated login in the [Reactive Markets platform](https://platform.reactivemarkets.com/); instructions are inthe next section. The generated token must then be inserted into the websocket headers in the form "Bearer your\_token". Examples of this using the Tyrus or java_websocket library can be seen below.
 
-Flatbuffers provides an efficient serialization/deserializaton mechanism in terms of both processing and space requirements. The `com.reactivemarkets.platform.example.feed.FeedMessageHandler` provides an example of how to consume the binary feed into your application. Note, the generated java classes for our Flatbuffers schema are located in the `com.reactivemarkets.encoding.feed` package.
+Flatbuffers provides an efficient serialization/deserializaton mechanism in terms of both processing and space requirements. The `com.reactivemarkets.platform.example.feed.FeedMessageHandler` provides an example of how to consume the binary feed into your application. Note, the generated java classes for our Flatbuffers schema are located in the `com.reactivemarkets.papi` package.
 
 #### Generating the authorisation token
 

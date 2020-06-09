@@ -55,6 +55,7 @@ public final class FeedGatewayTradeSubscription {
         final Map<String, String> env = System.getenv();
         final String uri = env.getOrDefault("REACTIVE_FEED_GATEWAY_URI", LIVE_URI);
         final String apiKey = env.getOrDefault("REACTIVE_PLATFORM_API_KEY", API_KEY);
+        LOGGER.info("Attempting connection to {} with key {}", uri, apiKey);
 
         // create a listener that will log the first 5 messages.
         final CountDownLatch latch = new CountDownLatch(5);

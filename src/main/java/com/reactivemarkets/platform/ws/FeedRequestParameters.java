@@ -38,9 +38,10 @@ public class FeedRequestParameters {
      */
     private short depth = 10;
     /**
-     * Conflation time of order book updates in milliseconds.
+     * Requested frequency of updates in cycles e.g. 2 would be every 2 * 1 second
+     * cycles.
      */
-    private short frequency = 1000;
+    private short frequency = 1;
     /**
      * Grouping of order book updates in price ticks. E.g. for BTCUSD at 6501.37, 1
      * would be 6501.37, 10 would be 6501.4, 50 would be 6503.5
