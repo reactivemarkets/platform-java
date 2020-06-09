@@ -54,6 +54,7 @@ public final class FeedGatewayL2Subscription {
         final Map<String, String> env = System.getenv();
         final String uri = env.getOrDefault("REACTIVE_FEED_GATEWAY_URI", LIVE_URI);
         final String apiKey = env.getOrDefault("REACTIVE_PLATFORM_API_KEY", API_KEY);
+        LOGGER.info("Attempting connection to {} with key {}", uri, apiKey);
 
         // create a listener that will log the first 10 messages.
         final CountDownLatch latch = new CountDownLatch(10);
@@ -65,8 +66,11 @@ public final class FeedGatewayL2Subscription {
             client = newWebSocketClient(uri, apiKey, handler);
             // blocking connect to the websocket
             client.connect();
+            // create a unique request id for this request - this will be returned on the
+            // subscription Accept/Reject
+            final String requestId = UUID.randomUUID().toString();
             // create a new request with default settings for conflation, depth and grouping
-            final FeedRequestParameters request = new FeedRequestParameters(UUID.randomUUID().toString(), "BTCUSD-CNB");
+            final FeedRequestParameters request = new FeedRequestParameters(requestId, "BTCUSD-CNB", "BCHUSD-CNB");
             // currently supports fixed sizes at 1, 5, 10, 20
             request.setDepth((short) 10);
             // currently supports fixed sizes at 1 (i.e. raw) and 50 for Coinbase
