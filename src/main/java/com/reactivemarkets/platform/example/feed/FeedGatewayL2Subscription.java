@@ -16,8 +16,6 @@
 
 package com.reactivemarkets.platform.example.feed;
 
-import static com.reactivemarkets.platform.ws.tyrus.TyrusWebSocketClientFactory.newWebSocketClient;
-
 import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.UUID;
@@ -31,9 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.reactivemarkets.platform.util.LoggerUtil;
 import com.reactivemarkets.platform.ws.FeedGatewayException;
-import com.reactivemarkets.platform.ws.FeedRequestMessageFactory;
 import com.reactivemarkets.platform.ws.FeedRequestParameters;
-import com.reactivemarkets.platform.ws.tyrus.TyrusWebSocketClient;
 
 public final class FeedGatewayL2Subscription {
 
@@ -61,9 +57,7 @@ public final class FeedGatewayL2Subscription {
         final FeedListener listener = newCountdownListener(latch);
         final Whole<ByteBuffer> handler = new FeedMessageHandler(listener);
 
-        TyrusWebSocketClient client = null;
-        try {
-            client = newWebSocketClient(uri, apiKey, handler);
+        try (FeedClient client = new FeedClient(uri, apiKey, handler)) {
             // blocking connect to the websocket
             client.connect();
             // create a unique request id for this request - this will be returned on the
@@ -72,12 +66,13 @@ public final class FeedGatewayL2Subscription {
             // create a new request with default settings for conflation, depth and grouping
             final FeedRequestParameters request = new FeedRequestParameters(requestId, "BTCUSD-CNB", "BCHUSD-CNB");
             // currently supports fixed sizes at 1, 5, 10, 20
-            request.setDepth((short) 10);
+            request.setDepth((short) 5);
             // currently supports fixed sizes at 1 (i.e. raw) and 50 for Coinbase
             request.setGrouping(50);
-            final ByteBuffer buffer = FeedRequestMessageFactory.newSubscription(request);
+            // set the update frequency to 1000ms
+            request.setFrequency((short) 1000);
 
-            client.send(buffer);
+            client.subscribe(request);
             // wait for the data countdown to complete or timeout after 15 seconds
             if (latch.await(15, TimeUnit.SECONDS)) {
                 LOGGER.info("Example completed successfully");
@@ -87,13 +82,6 @@ public final class FeedGatewayL2Subscription {
         } catch (InterruptedException e) {
             LOGGER.error("Error whilst waiting for data.", e);
             Thread.currentThread().interrupt();
-        } finally {
-            if (client != null) {
-                try {
-                    client.close();
-                } catch (Exception e) {
-                }
-            }
         }
     }
 

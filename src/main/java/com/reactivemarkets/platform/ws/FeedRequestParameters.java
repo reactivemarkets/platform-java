@@ -16,6 +16,8 @@
 
 package com.reactivemarkets.platform.ws;
 
+import java.util.UUID;
+
 import com.reactivemarkets.papi.FeedType;
 
 public class FeedRequestParameters {
@@ -98,5 +100,15 @@ public class FeedRequestParameters {
 
     public int getGrouping() {
         return grouping;
+    }
+
+    public static FeedRequestParameters newTradeFeedRequest(final String... markets) {
+        return new FeedRequestParameters(FeedType.Trade, UUID.randomUUID().toString(), markets);
+    }
+
+    public static FeedRequestParameters newMarketDataFeedRequest(final short depth, final short frequency,
+            final int grouping, final String... markets) {
+        return new FeedRequestParameters(FeedType.Default, UUID.randomUUID().toString(), markets).setDepth(depth)
+                .setFrequency(frequency).setGrouping(grouping);
     }
 }

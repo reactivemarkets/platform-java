@@ -57,8 +57,7 @@ public class TyrusWebSocketClient extends Endpoint implements AutoCloseable {
     private final MessageHandler handler;
     private Session session;
 
-    public TyrusWebSocketClient(final String uri, final String apiKey,
-            final MessageHandler.Whole<ByteBuffer> handler) {
+    public TyrusWebSocketClient(final String uri, final String apiKey, final MessageHandler.Whole<ByteBuffer> handler) {
         super();
         this.uri = URI.create(uri);
         this.apiKey = apiKey;

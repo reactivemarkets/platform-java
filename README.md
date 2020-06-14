@@ -26,7 +26,7 @@ cd platform-java
 
 The feed gateway provides an API to a binary feed over websockets using the [Google Flatbuffers](https://google.github.io/flatbuffers/) serialisation library. The API provides a flexible subscription model to stream of Level 2 market data snapshots and public trades. Subscriptions are made using a `FeedRequest` message resulting in a stream of `MDSnapshotL2` or `PublicTrade` messages. Invalid or failed subscriptions will return a `FeedRequestReject`.
 
-A full example of subscribing to and consuming from the level 2 market data feed can be seen in the `com.reactivemarkets.platform.example.feed.FeedGatewayL2Subscription` example. You will need an authorisation token to access the API which is generated against your authenticated login in the [Reactive Markets platform](https://platform.reactivemarkets.com/); instructions are inthe next section. The generated token must then be inserted into the websocket headers in the form "Bearer your\_token". Examples of this using the Tyrus or java_websocket library can be seen below.
+A full example of subscribing to and consuming from the level 2 market data feed can be seen in the `com.reactivemarkets.platform.example.feed.FeedGatewayL2Subscription` example. You will need an authorisation token to access the API which is generated against your authenticated login in the [Reactive Markets platform](https://platform.reactivemarkets.com/); instructions are in the next section. The generated token must then be inserted into the websocket headers in the form "Bearer your\_token".
 
 Flatbuffers provides an efficient serialization/deserializaton mechanism in terms of both processing and space requirements. The `com.reactivemarkets.platform.example.feed.FeedMessageHandler` provides an example of how to consume the binary feed into your application. Note, the generated java classes for our Flatbuffers schema are located in the `com.reactivemarkets.papi` package.
 
@@ -37,23 +37,6 @@ Creating an authorisation token is a simple three step process:
 1. Log in to the Reactive Markets platform [here](https://platform.reactivemarkets.com/)
 2. Select the API keys option from the pop out menu in the top left of the UI.
 3. Select 'Create new API key'
-
-#### Tyrus Token Example
-```java
-final Builder configBuilder = ClientEndpointConfig.Builder.create();
-configBuilder.configurator(new Configurator() {
-    public void beforeRequest(final Map<String, List<String>> headers) {
-        headers.put("Authorization", Arrays.asList("Bearer " + authToken));
-    }
-});
-```
-
-#### java_websocket Token Example (TooTallNate)
-```java
-Map<String, String> httpHeaders = new HashMap<>();
-httpHeaders.put("Authorization", "Bearer " + authToken);
-return new JWSWebSocketClient(uri, httpHeaders, handler);
-```
 
 ### Feed Gateway Reference Data
 

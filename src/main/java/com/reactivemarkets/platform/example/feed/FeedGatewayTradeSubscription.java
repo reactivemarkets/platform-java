@@ -16,11 +16,8 @@
 
 package com.reactivemarkets.platform.example.feed;
 
-import static com.reactivemarkets.platform.ws.tyrus.TyrusWebSocketClientFactory.newWebSocketClient;
-
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,12 +26,9 @@ import javax.websocket.MessageHandler.Whole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.reactivemarkets.papi.FeedType;
 import com.reactivemarkets.platform.util.LoggerUtil;
 import com.reactivemarkets.platform.ws.FeedGatewayException;
-import com.reactivemarkets.platform.ws.FeedRequestMessageFactory;
 import com.reactivemarkets.platform.ws.FeedRequestParameters;
-import com.reactivemarkets.platform.ws.tyrus.TyrusWebSocketClient;
 
 public final class FeedGatewayTradeSubscription {
 
@@ -62,18 +56,14 @@ public final class FeedGatewayTradeSubscription {
         final FeedListener listener = newCountdownListener(latch);
         final Whole<ByteBuffer> handler = new FeedMessageHandler(listener);
 
-        TyrusWebSocketClient client = null;
-        try {
-            client = newWebSocketClient(uri, apiKey, handler);
+        // auto close client resources
+        try (FeedClient client = new FeedClient(uri, apiKey, handler)) {
             // blocking connect to the websocket
             client.connect();
             // create a new request with default settings for conflation, depth and grouping
-            final FeedRequestParameters request = new FeedRequestParameters(FeedType.Trade,
-                    UUID.randomUUID().toString(), "BTCUSD-CNB", "BTCUSD-BFN");
+            final FeedRequestParameters request = FeedRequestParameters.newTradeFeedRequest("BTCUSD-CNB", "BTCUSD-BFN");
 
-            final ByteBuffer buffer = FeedRequestMessageFactory.newSubscription(request);
-
-            client.send(buffer);
+            client.subscribe(request);
             // wait for the data countdown to complete or timeout after 30 seconds
             if (latch.await(30, TimeUnit.SECONDS)) {
                 LOGGER.info("Example completed successfully");
@@ -83,13 +73,6 @@ public final class FeedGatewayTradeSubscription {
         } catch (InterruptedException e) {
             LOGGER.error("Error whilst waiting for data.", e);
             Thread.currentThread().interrupt();
-        } finally {
-            if (client != null) {
-                try {
-                    client.close();
-                } catch (Exception e) {
-                }
-            }
         }
     }
 
