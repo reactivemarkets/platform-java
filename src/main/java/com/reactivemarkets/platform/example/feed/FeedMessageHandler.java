@@ -23,6 +23,7 @@ import javax.websocket.MessageHandler;
 import com.reactivemarkets.papi.Body;
 import com.reactivemarkets.papi.FeedRequestAccept;
 import com.reactivemarkets.papi.FeedRequestReject;
+import com.reactivemarkets.papi.LiquidationOrder;
 import com.reactivemarkets.papi.MDLevel2;
 import com.reactivemarkets.papi.MDSnapshotL2;
 import com.reactivemarkets.papi.Message;
@@ -40,6 +41,8 @@ public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
     private static final ThreadLocal<FeedRequestReject> LOCAL_REQUEST_REJECT = ThreadLocal
             .withInitial(FeedRequestReject::new);
     private static final ThreadLocal<PublicTrade> LOCAL_PUBLIC_TRADE = ThreadLocal.withInitial(PublicTrade::new);
+    private static final ThreadLocal<LiquidationOrder> LOCAL_LIQUIDITION_ORDER = ThreadLocal
+            .withInitial(LiquidationOrder::new);
 
     public FeedMessageHandler(final FeedListener mdListener) {
         this.callbackHandler = mdListener;
@@ -71,9 +74,30 @@ public class FeedMessageHandler implements MessageHandler.Whole<ByteBuffer> {
             msg.body(pubTrade);
             onPublicTrade(timestamp, pubTrade);
             break;
+        case Body.LiquidationOrder:
+            final LiquidationOrder liqOrder = LOCAL_LIQUIDITION_ORDER.get();
+            msg.body(liqOrder);
+            onLiquidationOrder(timestamp, liqOrder);
+            break;
         default:
             throw new IllegalStateException("Unexpected message type.");
         }
+    }
+
+    private void onLiquidationOrder(final long timestamp, final LiquidationOrder liqOrder) {
+        Liquidation liquidation = new Liquidation();
+        liquidation.setTimestamp(timestamp);
+        liquidation.setSourceTimestamp(liqOrder.sourceTs());
+        liquidation.setSource(liqOrder.source());
+        liquidation.setFeedId(liqOrder.feedId());
+        liquidation.setFlags(liqOrder.flags());
+        liquidation.setMarket(liqOrder.market());
+        liquidation.setPrice(liqOrder.price());
+        liquidation.setQty(liqOrder.qty());
+        liquidation.setSide(Side.name(liqOrder.side()));
+        liquidation.setOrderId(liqOrder.orderId());
+        liquidation.setVenue(liqOrder.execVenue());
+        callbackHandler.onLiquidationOrder(liquidation);
     }
 
     private void onFeedRequestAck(final long timestamp, final FeedRequestAccept reqAck) {

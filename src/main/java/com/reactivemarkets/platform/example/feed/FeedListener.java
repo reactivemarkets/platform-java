@@ -29,4 +29,7 @@ public interface FeedListener {
 
     default void onTrade(Trade trade) {
     }
+
+    default void onLiquidationOrder(Liquidation order) {
+    }
 }
