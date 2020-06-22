@@ -106,6 +106,10 @@ public class FeedRequestParameters {
         return new FeedRequestParameters(FeedType.Trade, UUID.randomUUID().toString(), markets);
     }
 
+    public static FeedRequestParameters newLiquidationFeedRequest(final String... markets) {
+        return new FeedRequestParameters(FeedType.Liquidation, UUID.randomUUID().toString(), markets);
+    }
+
     public static FeedRequestParameters newMarketDataFeedRequest(final short depth, final short frequency,
             final int grouping, final String... markets) {
         return new FeedRequestParameters(FeedType.Default, UUID.randomUUID().toString(), markets).setDepth(depth)
